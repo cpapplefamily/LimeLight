@@ -72,12 +72,12 @@ public class LimeLight {
 
     //This is a test
     private boolean isConnected(){
-        resetPilelineLatency();
+        double t = getCurrentHeartBeat();
         Timer.delay(.05);  //How to make this not hold the thread?
-        if(getPipelineLatency()==0.0){
-            return false;
-        }else{
+        if(t != getCurrentHeartBeat()){
             return true;
+        }else{
+            return false;
         }
     }
 
@@ -140,8 +140,14 @@ public class LimeLight {
         return l;
     }
 
-    private void resetPilelineLatency(){
-        m_table.getEntry("tl").setValue(0.0);
+    /**
+     * hb counts up every frame. Users can use this to detect if the NT is updating
+     * @return double
+     */
+    public double getCurrentHeartBeat(){
+        NetworkTableEntry hb = m_table.getEntry("hb");
+        double l = hb.getDouble(0.0);
+        return l;
     }
 
     /**
