@@ -1,5 +1,9 @@
 package oi.limelightvision.limelight.frc;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -21,12 +25,19 @@ public class LimeLight {
 
     private NetworkTable m_table;
     private String m_tableName;
+    private DoubleArraySubscriber camtransub;
+    private DoubleArraySubscriber posesub;
+
+    private Translation3d tran3d;
+    private Rotation3d r3d;
+    private Pose3d p3d;
     /**
      * Using the Default Lime Light NT table
      */
     public LimeLight() {
         m_tableName = "limelight";
         m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
+        posesub = m_table.getDoubleArrayTopic("botpose").subscribe(new double[] {});
     }
 
     /**
@@ -35,6 +46,7 @@ public class LimeLight {
     public LimeLight(String tableName) {
         m_tableName = tableName;
         m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
+        posesub = m_table.getDoubleArrayTopic("botpose").subscribe(new double[] {});
     }
 
     /**
@@ -128,6 +140,27 @@ public class LimeLight {
 
     private void resetPilelineLatency(){
         m_table.getEntry("tl").setValue(0.0);
+    }
+
+    /**
+     * Thank to CD user icemannie for the base Code Snipit here
+     * Added return 
+     * @return Pose3d
+     */
+    public Pose3d getRobotPose() {
+
+        double[] result = posesub.get();
+        if (result.length > 0) {
+            tran3d = new Translation3d(result[0], result[1], result[2]);
+            r3d = new Rotation3d(result[3], result[4], result[5]);
+            p3d = new Pose3d(tran3d, r3d);
+            return p3d;
+        } else{
+            //Return all Zero
+            return new Pose3d();
+        }
+    
+       
     }
     //Setters
     
