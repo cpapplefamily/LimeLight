@@ -25,6 +25,7 @@ public class LimeLight {
 
     private NetworkTable m_table;
     private String m_tableName;
+
     private DoubleArraySubscriber camtransub;
     private DoubleArraySubscriber posesub;
 
@@ -37,6 +38,7 @@ public class LimeLight {
     public LimeLight() {
         m_tableName = "limelight";
         m_table = NetworkTableInstance.getDefault().getTable(m_tableName);
+        camtransub = m_table.getDoubleArrayTopic("camtran").subscribe(new double[] {});
         posesub = m_table.getDoubleArrayTopic("botpose").subscribe(new double[] {});
     }
 
@@ -159,8 +161,20 @@ public class LimeLight {
             //Return all Zero
             return new Pose3d();
         }
-    
-       
+    }
+
+    public Pose3d getCamTrans() {
+
+        double[] result = camtransub.get();
+        if (result.length > 0) {
+            tran3d = new Translation3d(result[0], result[1], result[2]);
+            r3d = new Rotation3d(result[3], result[4], result[5]);
+            p3d = new Pose3d(tran3d, r3d);
+            return p3d;
+        } else{
+            //Return all Zero
+            return new Pose3d();
+        }
     }
     //Setters
     
